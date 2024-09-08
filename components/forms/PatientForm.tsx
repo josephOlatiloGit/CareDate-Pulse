@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import CustomFormFiled from "../CustomFormFiled";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
+import { UserFormValidation } from "@/lib/validation";
+import { useRouter } from "next/navigation";
 
 /**
  *  Here in this form component we will be using Shadcn for a general form
@@ -31,27 +33,40 @@ export enum FormFieldType {
   SKELETON = "skeleton",
 }
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-});
-
 export default function PatientForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof UserFormValidation>>({
+    resolver: zodResolver(UserFormValidation),
     defaultValues: {
-      username: "",
+      name: "",
+      email: "",
+      phone: "",
     },
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit({
+    name,
+    email,
+    phone,
+  }: z.infer<typeof UserFormValidation>) {
+    setIsLoading(true);
+    try {
+      //   const userData = {
+      //     name,
+      //     email,
+      //     phone,
+      //   };
+      //   const user = await createUser(userData);
+      //     if (user) router.push(`/patients/${user.$id}/register`)
+    } catch (error) {
+      console.log(error);
+    }
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
