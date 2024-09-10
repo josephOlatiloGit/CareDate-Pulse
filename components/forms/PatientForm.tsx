@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import CustomFormFiled from "../CustomFormFiled";
@@ -11,6 +10,7 @@ import SubmitButton from "../SubmitButton";
 import { useState } from "react";
 import { UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
+import { createUser } from "@/lib/actions/patient.actions";
 
 /**
  *  Here in this form component we will be using Shadcn for a general form
@@ -54,17 +54,24 @@ export default function PatientForm() {
     phone,
   }: z.infer<typeof UserFormValidation>) {
     setIsLoading(true);
+
     try {
-      //   const userData = {
-      //     name,
-      //     email,
-      //     phone,
-      //   };
-      //   const user = await createUser(userData);
-      //     if (user) router.push(`/patients/${user.$id}/register`)
+      const userData = {
+        name,
+        email,
+        phone,
+      };
+
+      const user = await createUser(userData);
+
+      if (user) {
+        router.push(`/patient/${user.$id}/register`);
+      }
+      console.log(user);
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
   }
 
   return (
@@ -86,7 +93,7 @@ export default function PatientForm() {
         <CustomFormFiled
           fieldType={FormFieldType.INPUT}
           control={form.control}
-          name="name"
+          name="email"
           label="Email"
           placeholder="joseph@developer.pro"
           iconSrc="/assets/icons/email.svg"
