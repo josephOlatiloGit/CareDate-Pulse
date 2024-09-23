@@ -67,7 +67,6 @@ export default function PatientForm() {
       if (user) {
         router.push(`/patient/${user.$id}/register`);
       }
-      console.log(user);
     } catch (error) {
       console.log(error);
     }
