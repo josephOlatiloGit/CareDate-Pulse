@@ -13,8 +13,10 @@ import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { GenderOptions } from "@/constants";
+import { Doctors, GenderOptions } from "@/constants";
 import { Label } from "../ui/label";
+import { Select, SelectItem } from "../ui/select";
+import Image from "next/image";
 
 /**
  *  Here in this form component we will be using Shadcn for a general form
@@ -146,12 +148,6 @@ export default function RegisterForm({ user }: { user: User }) {
           />
         </div>
 
-        {/* <section className=" space-y-6">
-          <div className="mb-9 space-y-1">
-            <h2 className="sub-header">Medical Information</h2>
-          </div>
-        </section> */}
-
         <div className="flex flex-col gap-6 xl:flex-row">
           <CustomFormFiled
             fieldType={FormFieldType.INPUT}
@@ -187,7 +183,91 @@ export default function RegisterForm({ user }: { user: User }) {
           />
         </div>
 
-        <div className="flex flex-col gap-6 xl:flex-row"></div>
+        <section className=" space-y-6">
+          <div className="mb-9 space-y-1">
+            <h2 className="sub-header">Medical Information</h2>
+          </div>
+        </section>
+
+        <CustomFormFiled
+          fieldType={FormFieldType.SELECT}
+          control={form.control}
+          name="primaryPhysician"
+          label="Primary Physician"
+          placeholder="Select a physician"
+        >
+          {Doctors.map((doctor) => (
+            <SelectItem key={doctor.name} value={doctor.name}>
+              <div className=" flex cursor-pointer items-center gap-2 ">
+                <Image
+                  src={doctor.image}
+                  width={32}
+                  height={32}
+                  alt={doctor.name}
+                  className="rounded-full border border-dark-500"
+                />
+                <p className="">{doctor.name}</p>
+              </div>
+            </SelectItem>
+          ))}
+        </CustomFormFiled>
+
+        <div className="flex flex-col gap-6 xl:flex-row">
+          <CustomFormFiled
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="insuranceProvider"
+            label="Insurance Provider"
+            placeholder="BlueCross BlueShield"
+          />
+          <CustomFormFiled
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="insurancePolicyNumber"
+            label="Insurance policy number"
+            placeholder="ABC123456789"
+          />
+        </div>
+
+        <div className="flex flex-col gap-6 xl:flex-row">
+          <CustomFormFiled
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="allergies"
+            label="Allergies (if any)"
+            placeholder="Peanuts, Penicillin, Pollen"
+          />
+          <CustomFormFiled
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="currentMedication"
+            label="Current medication (if any)"
+            placeholder="Ibuprofen 200mg, Paracetamol 500mg"
+          />
+        </div>
+
+        <div className="flex flex-col gap-6 xl:flex-row">
+          <CustomFormFiled
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="familyMedicalHistory"
+            label="Family medical history"
+            placeholder="Mother had diabetes, Father had heart disease"
+          />
+          <CustomFormFiled
+            fieldType={FormFieldType.TEXTAREA}
+            control={form.control}
+            name="pastMedicalHistory"
+            label="Past medical history"
+            placeholder="Appendectomy, Tonsillectomy"
+          />
+        </div>
+
+        <section className=" space-y-6">
+          <div className="mb-9 space-y-1">
+            <h2 className="sub-header">Identification and Verification </h2>
+          </div>
+        </section>
 
         <div className="flex flex-col gap-6 xl:flex-row"></div>
 
