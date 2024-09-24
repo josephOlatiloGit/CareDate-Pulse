@@ -305,7 +305,34 @@ export default function RegisterForm({ user }: { user: User }) {
           )}
         />
 
-        <div className="flex flex-col gap-6 xl:flex-row"></div>
+        <section className=" space-y-6">
+          <div className="mb-9 space-y-1">
+            <h2 className="sub-header">Consent and Privacy</h2>
+          </div>
+        </section>
+
+        <CustomFormFiled
+          fieldType={FormFieldType.CHECKBOX}
+          control={form.control}
+          name="treatmentConsent"
+          label="I consent to treatment"
+        />
+        <CustomFormFiled
+          fieldType={FormFieldType.CHECKBOX}
+          control={form.control}
+          name="disclosureConsent"
+          label="I consent to disclosure of information"
+        />
+        <CustomFormFiled
+          fieldType={FormFieldType.CHECKBOX}
+          control={form.control}
+          name="privacyConsent"
+          label="I consent to privacy policy"
+        />
+
+        {/* <div className="flex flex-col gap-6 xl:flex-row">
+
+        </div> */}
 
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
