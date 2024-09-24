@@ -13,12 +13,14 @@ import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Doctors, GenderOptions } from "@/constants";
+import { Doctors, GenderOptions, IdentificationTypes } from "@/constants";
 import { Label } from "../ui/label";
 import { Select, SelectItem } from "../ui/select";
 import Image from "next/image";
+import FileUploader from "../FileUploader";
 
 /**
+ * Note: Here We make use of react-hook form to create a controlled form without using state.
  *  Here in this form component we will be using Shadcn for a general form
  * component Ui to maintain consistency within our app
  * We add the formSchema form Shadcn
@@ -268,6 +270,40 @@ export default function RegisterForm({ user }: { user: User }) {
             <h2 className="sub-header">Identification and Verification </h2>
           </div>
         </section>
+
+        <CustomFormFiled
+          fieldType={FormFieldType.SELECT}
+          control={form.control}
+          name="identificationType"
+          label="Identification type"
+          placeholder="Select an identification type"
+        >
+          {IdentificationTypes.map((type) => (
+            <SelectItem key={type} value={type} className="cursor-pointer">
+              {type}
+            </SelectItem>
+          ))}
+        </CustomFormFiled>
+
+        <CustomFormFiled
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="identificationNumber"
+          label="Identification number"
+          placeholder="123456789"
+        />
+
+        <CustomFormFiled
+          fieldType={FormFieldType.SKELETON}
+          control={form.control}
+          name="identificationDocument"
+          label="Scanned copy of identification document"
+          renderSkeleton={(field) => (
+            <FormControl>
+              <FileUploader files={field.value} onChange={field.onChange} />
+            </FormControl>
+          )}
+        />
 
         <div className="flex flex-col gap-6 xl:flex-row"></div>
 
