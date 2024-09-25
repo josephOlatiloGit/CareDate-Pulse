@@ -43,6 +43,21 @@ export const getUser = async (userId: string) => {
   }
 };
 
+// To Get patient by Id:
+export const getPatient = async (userId: string) => {
+  try {
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [Query.equal("userId", userId)] //To return the list of patients that match the query
+    );
+
+    return parseStringify(patients.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // To register Patient:
 
 export const registerPatient = async ({

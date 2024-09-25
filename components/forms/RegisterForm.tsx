@@ -10,7 +10,7 @@ import SubmitButton from "../SubmitButton";
 import { useState } from "react";
 import { PatientFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
-import { createUser, registerPatient } from "@/lib/actions/patient.actions";
+import { registerPatient } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import {
@@ -77,9 +77,11 @@ export default function RegisterForm({ user }: { user: User }) {
         birthDate: new Date(values.birthDate),
         identificationDocument: formData,
       };
+      console.log("userId :", user.$id);
       // @ts-ignore
       const patient = await registerPatient(patientData);
-      if (patient) router.push(`patient/${user.$id}/new-appointment`);
+
+      if (patient) router.push(`/patient/${user.$id}/new-appointment`);
     } catch (error) {
       console.log(error);
     }
