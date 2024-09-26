@@ -23,7 +23,7 @@ export default async function Register({
           />
           <RegisterForm user={user} />
 
-          <p className="copyright ml-[-48px] p-10">© 2024 CareDatePulse</p>
+          <p className="copyright py-12">© 2024 CareDatePulse</p>
         </div>
       </section>
       <Image

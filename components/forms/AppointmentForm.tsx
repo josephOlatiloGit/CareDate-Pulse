@@ -8,13 +8,17 @@ import { Input } from "@/components/ui/input";
 import CustomFormFiled from "../CustomFormFiled";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import { UserFormValidation } from "@/lib/validation";
+import {
+  AppointmentFormValidation,
+  getAppointmentSchema,
+} from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
 import { Doctors } from "@/constants";
 import { SelectItem } from "../ui/select";
 import Image from "next/image";
+import { createAppointment } from "@/lib/actions/appointment.actions";
 
 /**
  *  Here in this form component we will be using Shadcn for a general form
@@ -39,35 +43,58 @@ export default function AppointmentForm({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const AppointmentFormValidation = getAppointmentSchema(type);
+
   // 1. Define your form.
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof AppointmentFormValidation>>({
+    resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
+      primaryPhysician: "",
+      schedule: new Date(),
+      reason: "",
+      note: "",
+      cancellationReason: "",
     },
   });
 
   // 2. Define a submit handler.
-  async function onSubmit({
-    name,
-    email,
-    phone,
-  }: z.infer<typeof UserFormValidation>) {
+  async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
     setIsLoading(true);
+    let status;
+
+    switch (type) {
+      case "schedule":
+        status = "scheduled";
+        break;
+      case "cancel":
+        status = "cancelled";
+        break;
+      default:
+        status = "pending";
+        break;
+    }
 
     try {
-      const userData = {
-        name,
-        email,
-        phone,
-      };
+      if (type === "create" && patientId) {
+        const appointmentData = {
+          userId,
+          patient: patientId,
+          primaryPhysician: values.primaryPhysician,
+          schedule: new Date(values.schedule),
+          reason: values.reason!,
+          note: values.note,
+          status: status as Status,
+        };
 
-      const user = await createUser(userData);
+        // Push the new appointment to db using the server action createAppointment:
+        const appointment = await createAppointment(appointmentData);
 
-      if (user) {
-        router.push(`/patient/${user.$id}/register`);
+        if (appointment) {
+          form.reset();
+          router.push(
+            `/patient/${userId}/new-appointment/success?appointmentId=${appointment.id}`
+          );
+        }
       }
     } catch (error) {
       console.log(error);
@@ -147,8 +174,8 @@ export default function AppointmentForm({
               <CustomFormFiled
                 fieldType={FormFieldType.TEXTAREA}
                 control={form.control}
-                name="notes"
-                label="Notes"
+                name="note"
+                label="Note"
                 placeholder="Enter notes"
               />
             </div>
