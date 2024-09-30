@@ -1,8 +1,25 @@
+import { Doctors } from "@/constants";
+import { getAppointment } from "@/lib/actions/appointment.actions";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export default function Success() {
+/**
+ * Here we fetch the appointment Id throw the params;
+ * Since we are dealing with a dynamic route.
+ */
+
+export default async function Success({
+  params: { userId },
+  searchParams,
+}: SearchParamProps) {
+  // TO get the appointment Id
+  const appointmentId = (searchParams?.appointmentId as string) || "";
+  const appointment = await getAppointment(appointmentId);
+  const doctor = Doctors.find(
+    (doc) => doc.name === appointment.primaryPhysician
+  ); //get the primaryPhysician (Doctor)
+
   return (
     <div className="flex h-screen max-h-screen px-[5%]">
       <div className="success-img">
@@ -31,7 +48,15 @@ export default function Success() {
 
         <section className="request-details">
           <p>Requested appointment details:</p>
-          <div className="flex items-center gap-3"></div>
+          <div className="flex items-center gap-3">
+            <Image
+              src={doctor?.image!}
+              alt="doctor"
+              width={100}
+              height={100}
+              className="sze-6"
+            />
+          </div>
         </section>
       </div>
     </div>
