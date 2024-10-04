@@ -1,7 +1,9 @@
+import DataTable from "@/components/table/DataTable";
 import StatCard from "@/components/StatCard";
 import { getRecentAppointmentList } from "@/lib/actions/appointment.actions";
 import Image from "next/image";
 import Link from "next/link";
+import { columns } from "@/components/table/Columns";
 
 export default async function Admin() {
   const appointments = await getRecentAppointmentList();
@@ -32,17 +34,19 @@ export default async function Admin() {
 
         <section className="admin-stat">
           <StatCard
-            type="appointment"
+            type="appointments"
             count={appointments.scheduledCount}
             label="Schedule appointments"
             icon="/assets/icons/appointments.svg"
           />
+
           <StatCard
             type="pending"
             count={appointments.pendingCount}
             label="Pending appointments"
             icon="/assets/icons/pending.svg"
           />
+
           <StatCard
             type="cancelled"
             count={appointments.cancelledCount}
@@ -50,6 +54,8 @@ export default async function Admin() {
             icon="/assets/icons/cancelled.svg"
           />
         </section>
+        {/* <DataTable columns={columns} data={appointments.documents} /> */}
+        <DataTable columns={columns} data={appointments.documents || []} />
       </main>
     </div>
   );
