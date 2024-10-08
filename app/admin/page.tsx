@@ -54,7 +54,6 @@ export default async function Admin() {
             icon="/assets/icons/cancelled.svg"
           />
         </section>
-        {/* <DataTable columns={columns} data={appointments.documents} /> */}
         <DataTable columns={columns} data={appointments.documents || []} />
       </main>
     </div>

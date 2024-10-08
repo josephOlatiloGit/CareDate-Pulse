@@ -61,7 +61,27 @@ export const getRecentAppointmentList = async () => {
       cancelledCount: 0,
     };
 
-    // iterate through the count and increase the count by every appointment in the state
+    /*iterate through the count and increase the count by every appointment in the state*/
+
+    /**
+     * const counts = (appointments.documents as Appointment[]).reduce(
+      (acc, appointment) => {
+        switch (appointment.status) {
+          case "scheduled":
+            acc.scheduledCount++;
+            break;
+          case "pending":
+            acc.pendingCount++;
+            break;
+          case "cancelled":
+            acc.cancelledCount++;
+            break;
+        }
+        return acc;
+      },
+      initialCounts
+    );
+     */
 
     const counts = (appointments.documents as Appointment[]).reduce(
       (acc, appointment) => {
