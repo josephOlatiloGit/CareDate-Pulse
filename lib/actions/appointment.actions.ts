@@ -100,7 +100,7 @@ export const getRecentAppointmentList = async () => {
     const data = {
       totalCount: appointments.total,
       ...counts,
-      document: appointments.documents,
+      documents: appointments.documents,
     };
 
     return parseStringify(data);
