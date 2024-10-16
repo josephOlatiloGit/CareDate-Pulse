@@ -13,6 +13,7 @@ import {
 import { parseStringify } from "../utils";
 import { tracingChannel } from "diagnostics_channel";
 import { Appointment } from "@/types/appwrite.types";
+import { revalidatePath } from "next/cache";
 
 // To createAppointment:
 export const createAppointment = async (
@@ -104,6 +105,33 @@ export const getRecentAppointmentList = async () => {
     };
 
     return parseStringify(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateAppointment = async ({
+  appointmentId,
+  userId,
+  appointment,
+  type,
+}: UpdateAppointmentParams) => {
+  try {
+    const updatedAppointment = await databases.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId, // the Id of the document we want to update
+      appointment //the actual data of the appointment we want to update
+    );
+
+    if (!updatedAppointment) {
+      throw new Error("Appointment not found");
+    }
+
+    // TODO SMS notification
+
+    revalidatePath("/admin");
+    return parseStringify(updatedAppointment);
   } catch (error) {
     console.log(error);
   }
