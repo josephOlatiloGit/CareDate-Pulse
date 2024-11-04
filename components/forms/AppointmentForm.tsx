@@ -8,10 +8,7 @@ import { Input } from "@/components/ui/input";
 import CustomFormFiled from "../CustomFormFiled";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
-import {
-  AppointmentFormValidation,
-  getAppointmentSchema,
-} from "@/lib/validation";
+import { getAppointmentSchema } from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
@@ -46,7 +43,7 @@ export default function AppointmentForm({
   patientId: string;
   type: "create" | "schedule" | "cancel";
   appointment?: Appointment;
-  setOpen: (open: Boolean) => void;
+  setOpen: (open: boolean) => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -69,9 +66,11 @@ export default function AppointmentForm({
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
-    setIsLoading(true);
-    let status;
+    console.log("Im submitting", { type });
 
+    setIsLoading(true);
+
+    let status;
     switch (type) {
       case "schedule":
         status = "scheduled";
@@ -83,6 +82,7 @@ export default function AppointmentForm({
         status = "pending";
         break;
     }
+    console.log({ type });
 
     try {
       if (type === "create" && patientId) {
@@ -106,6 +106,7 @@ export default function AppointmentForm({
           );
         }
       } else {
+        console.log("Updating appointment");
         const appointmentToUpdate = {
           userId,
           appointmentId: appointment?.$id!,
