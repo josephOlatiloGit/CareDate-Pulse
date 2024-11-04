@@ -43,6 +43,7 @@ export default function AppointmentModal({
           </DialogDescription>
         </DialogHeader>
         <AppointmentForm
+          type={type}
           userId={userId}
           patientId={patientId}
           appointment={appointment}
