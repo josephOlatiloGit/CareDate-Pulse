@@ -53,7 +53,7 @@ export const getRecentAppointmentList = async () => {
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      [Query.orderDesc("$createdAt")] //To show th newest one at the top
+      [Query.orderDesc("$createdAt")] //To show the newest one at the top
     );
 
     const initialCounts = {
