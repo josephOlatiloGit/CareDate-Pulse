@@ -6,7 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { formatDate } from "react-datepicker/dist/date_utils";
-
+import * as Sentry from "@sentry/nextjs";
+import { getUser } from "@/lib/actions/patient.actions";
 /**
  * Here we fetch the appointment Id throw the params;
  * Since we are dealing with a dynamic route.
@@ -22,6 +23,10 @@ export default async function Success({
   const doctor = Doctors.find(
     (doc) => doc.name === appointment.primaryPhysician
   ); //get the primaryPhysician (Doctor)
+
+  const user = await getUser(userId);
+
+  Sentry.metrics.set("user_view_appointment-success", user.name);
 
   return (
     <div className="flex h-screen max-h-screen px-[5%]">
