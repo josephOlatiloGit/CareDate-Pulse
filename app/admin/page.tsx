@@ -9,8 +9,8 @@ export default async function Admin() {
   const appointments = await getRecentAppointmentList();
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col space-y-14">
-      <header className="admin-header">
+    <div className="mx-auto flex max-w-7xl flex-col space-y-14 ">
+      <header className="admin-header z-10 ">
         <Link href="/" className="cursor-pointer">
           <Image
             src="/assets/icons/logo-full.svg"
