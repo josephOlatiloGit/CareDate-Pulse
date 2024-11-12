@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import CustomFormFiled from "../CustomFormFiled";
+import CustomFormFiled from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { useState } from "react";
 import { getAppointmentSchema } from "@/lib/validation";
@@ -19,16 +19,13 @@ import {
 } from "@/lib/actions/appointment.actions";
 import { Appointment } from "@/types/appwrite.types";
 
-/**
- *  Here in this form component we will be using Shadcn for a general form
- * component Ui to maintain consistency within our app
- * We add the formSchema form Shadcn
- * We import {z} form zod and Zod is a validation library.
- * Then we copy the form component from the Shadcn guide.
- * To build the form we copy the components and install input.
- * Then we copy the actual form input code snippet.
- * Since we gonna be having a lots of form activity in our application , then we can turn the formField in to a reusable component.
- */
+type AppointmentFormProps = {
+  userId: string;
+  patientId: string;
+  type: "create" | "schedule" | "cancel";
+  appointment?: Appointment;
+  setOpen?: (open: boolean) => void;
+};
 
 export default function AppointmentForm({
   userId,
@@ -36,53 +33,32 @@ export default function AppointmentForm({
   type,
   appointment,
   setOpen,
-}: {
-  userId: string;
-  patientId: string;
-  type: "create" | "schedule" | "cancel";
-  appointment?: Appointment;
-  setOpen: (open: boolean) => void;
-}) {
+}: AppointmentFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const AppointmentFormValidation = getAppointmentSchema(type);
 
-  console.log(appointment);
-
-  // 1. Define your form.
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      primaryPhysician: appointment ? appointment.primaryPhysician : "",
-      schedule: appointment
-        ? new Date(appointment.schedule)
-        : new Date(Date.now()),
-      reason: appointment ? appointment.reason : "",
-      note: appointment?.note || "",
-      cancellationReason: appointment?.cancellationReason || "",
+      primaryPhysician: appointment?.primaryPhysician ?? "",
+      schedule: appointment ? new Date(appointment.schedule) : new Date(),
+      reason: appointment?.reason ?? "",
+      note: appointment?.note ?? "",
+      cancellationReason: appointment?.cancellationReason ?? "",
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
-    console.log("Im submitting", { type });
-
     setIsLoading(true);
 
-    let status;
-    switch (type) {
-      case "schedule":
-        status = "scheduled";
-        break;
-      case "cancel":
-        status = "cancelled";
-        break;
-      default:
-        status = "pending";
-        break;
-    }
-    console.log({ type });
+    const status =
+      type === "schedule"
+        ? "scheduled"
+        : type === "cancel"
+        ? "cancelled"
+        : "pending";
 
     try {
       if (type === "create" && patientId) {
@@ -91,69 +67,58 @@ export default function AppointmentForm({
           patient: patientId,
           primaryPhysician: values.primaryPhysician,
           schedule: new Date(values.schedule),
-          reason: values.reason!,
+          reason: values.reason ?? "",
           note: values.note,
           status: status as Status,
         };
 
-        // Push the new appointment to db using the server action createAppointment:
-        const appointment = await createAppointment(appointmentData);
+        const newAppointment = await createAppointment(appointmentData);
 
-        if (appointment) {
+        if (newAppointment) {
           form.reset();
           router.push(
-            `/patient/${userId}/new-appointment/success?appointmentId=${appointment.$id}`
+            `/patient/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
           );
         }
-      } else {
-        console.log("Updating appointment");
+      } else if (appointment?.$id) {
         const appointmentToUpdate = {
           userId,
-          appointmentId: appointment?.$id!,
+          appointmentId: appointment.$id,
           appointment: {
-            primaryPhysician: values?.primaryPhysician,
-            schedule: new Date(values?.schedule),
+            primaryPhysician: values.primaryPhysician,
+            schedule: new Date(values.schedule),
             status: status as Status,
-            cancellationReason: values?.cancellationReason,
+            cancellationReason: values.cancellationReason,
           },
           type,
         };
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
 
-        if (updatedAppointment) {
+        if (updatedAppointment && setOpen) {
           setOpen(false);
           form.reset();
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error submitting appointment form:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
-  // To make the button dynamic, we create a custom label for the button
-  let buttonLabel;
-
-  switch (type) {
-    case "cancel":
-      buttonLabel = "Cancel Appointment";
-      break;
-    case "create":
-      buttonLabel = "Create Appointment";
-      break;
-    case "schedule":
-      buttonLabel = "Schedule Appointment";
-      break;
-    default:
-      break;
-  }
+  const buttonLabel =
+    type === "cancel"
+      ? "Cancel Appointment"
+      : type === "create"
+      ? "Create Appointment"
+      : "Schedule Appointment";
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         {type === "create" && (
           <section className="mb-12 space-y-4">
-            <h1 className="header">New Appointment </h1>
+            <h1 className="header">New Appointment</h1>
             <p className="text-dark-700">
               Request a new appointment in 10 seconds
             </p>
@@ -171,7 +136,7 @@ export default function AppointmentForm({
             >
               {Doctors.map((doctor) => (
                 <SelectItem key={doctor.name} value={doctor.name}>
-                  <div className=" flex cursor-pointer items-center gap-2 ">
+                  <div className="flex cursor-pointer items-center gap-2">
                     <Image
                       src={doctor.image}
                       width={32}
@@ -179,7 +144,7 @@ export default function AppointmentForm({
                       alt={doctor.name}
                       className="rounded-full border border-dark-500"
                     />
-                    <p className="">{doctor.name}</p>
+                    <p>{doctor.name}</p>
                   </div>
                 </SelectItem>
               ))}
@@ -218,7 +183,7 @@ export default function AppointmentForm({
             fieldType={FormFieldType.TEXTAREA}
             control={form.control}
             name="cancellationReason"
-            label="Reason for cancellation "
+            label="Reason for cancellation"
             placeholder="Enter reason for cancellation"
           />
         )}

@@ -12,7 +12,6 @@ import {
   messaging,
 } from "../appwrite.config";
 import { formatDateTime, parseStringify } from "../utils";
-import { tracingChannel } from "diagnostics_channel";
 import { Appointment } from "@/types/appwrite.types";
 import { revalidatePath } from "next/cache";
 

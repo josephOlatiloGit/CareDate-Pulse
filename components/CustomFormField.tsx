@@ -44,7 +44,13 @@ interface CustomProps {
 We will also make use of switch case to return a dynamic fields.
  *  */
 
-const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
+const RenderField = ({
+  field,
+  props,
+}: {
+  field: React.ChangeEvent<HTMLInputElement>;
+  props: CustomProps;
+}) => {
   const {
     fieldType,
     iconSrc,

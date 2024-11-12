@@ -1,4 +1,5 @@
 "use server";
+
 import { ID, Query } from "node-appwrite";
 import {
   BUCKET_ID,
@@ -13,6 +14,22 @@ import {
 import { parseStringify } from "../utils";
 import { InputFile } from "node-appwrite/file";
 
+// Define an interface for the error structure
+interface AppwriteError {
+  code: number;
+  message: string;
+}
+
+// Helper function to type-check if an error is an AppwriteError
+function isAppwriteError(error: unknown): error is AppwriteError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as AppwriteError).code === "number"
+  );
+}
+
 // To create a new user:
 export const createUser = async (user: CreateUserParams) => {
   try {
@@ -25,21 +42,23 @@ export const createUser = async (user: CreateUserParams) => {
     );
 
     return newUser;
-  } catch (error: any) {
-    if (error && error?.code === 409) {
+  } catch (error: unknown) {
+    if (isAppwriteError(error) && error.code === 409) {
       const documents = await users.list([Query.equal("email", [user.email])]);
       return documents?.users[0];
     }
+    // Re-throw the error if it's not the one we're expecting
+    throw error;
   }
 };
 
 export const getUser = async (userId: string) => {
   try {
     const user = await users.get(userId);
-
     return parseStringify(user);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching user:", error);
+    throw error;
   }
 };
 
@@ -54,21 +73,16 @@ export const getPatient = async (userId: string) => {
 
     return parseStringify(patients.documents[0]);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching patient:", error);
+    throw error;
   }
 };
 
 // To register Patient:
-
 export const registerPatient = async ({
   identificationDocument,
   ...patient
 }: RegisterUserParams) => {
-  /**
-   *  we first store the uploaded file in appwrite storage before we can assess it using paramsUrl. We cannot upload imageFile to the Db, we have to store them somewhere.
-   * So here we working with appwrite storage.
-   */
-
   try {
     let file;
 
@@ -87,13 +101,16 @@ export const registerPatient = async ({
       ID.unique(),
       {
         identificationDocumentId: file?.$id || null,
-        identificationDocumentUrl: `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID}`,
+        identificationDocumentUrl: file
+          ? `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file.$id}/view?project=${PROJECT_ID}`
+          : null,
         ...patient,
       }
     );
 
     return parseStringify(newPatient);
   } catch (error) {
-    console.log(error);
+    console.error("Error registering patient:", error);
+    throw error;
   }
 };
