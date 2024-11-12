@@ -19,6 +19,7 @@
     "@radix-ui/react-radio-group": "^1.2.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
+    "@sentry/nextjs": "^8.37.1",
     "@tanstack/react-table": "^8.20.5",
     "add": "^2.0.6",
     "class-variance-authority": "^0.7.0",
