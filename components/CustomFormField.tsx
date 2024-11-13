@@ -1,4 +1,5 @@
 "use client";
+
 import {
   FormControl,
   FormField,
@@ -7,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Control } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 import { FormFieldType } from "./forms/PatientForm";
 import React from "react";
 import Image from "next/image";
@@ -19,37 +20,27 @@ import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 
-/**
- * We pass the control as a prop,
- * To make the this form component reusable through the entire application we need to pass the form attributes as props.
- */
-
-interface CustomProps {
-  control: Control<any>;
+interface CustomProps<T extends FieldValues> {
+  control: Control<T>;
   fieldType: FormFieldType;
-  name: string;
+  name: Path<T>;
   label?: string;
   placeholder?: string;
   iconSrc?: string;
   iconAlt?: string;
-  disabled?: string;
+  disabled?: boolean;
   dateFormat?: string;
   showTimeSelect?: boolean;
-  children?: React.ReactNode; //Incase we want to show something inside an input
-  renderSkeleton?: (field: any) => React.ReactNode;
+  children?: React.ReactNode;
+  renderSkeleton?: (field: FieldValues) => React.ReactNode;
 }
 
-/**
- * We create a logic that returns all kinds of inputs by passing the field attributes as props:
-We will also make use of switch case to return a dynamic fields.
- *  */
-
-const RenderField = ({
+const RenderField = <T extends FieldValues>({
   field,
   props,
 }: {
-  field: React.ChangeEvent<HTMLInputElement>;
-  props: CustomProps;
+  field: FieldValues;
+  props: CustomProps<T>;
 }) => {
   const {
     fieldType,
@@ -59,6 +50,7 @@ const RenderField = ({
     showTimeSelect,
     dateFormat,
     renderSkeleton,
+    disabled,
   } = props;
 
   switch (fieldType) {
@@ -79,6 +71,7 @@ const RenderField = ({
               placeholder={placeholder}
               {...field}
               className="shad-input border-0"
+              disabled={disabled}
             />
           </FormControl>
         </div>
@@ -91,7 +84,7 @@ const RenderField = ({
             placeholder={placeholder}
             {...field}
             className="shad-textArea"
-            disabled={props.disabled}
+            disabled={disabled}
           />
         </FormControl>
       );
@@ -104,9 +97,10 @@ const RenderField = ({
             placeholder={placeholder}
             international
             withCountryCallingCode
-            value={(field.value as E164Number) || undefined}
-            onChange={field.onChange}
+            value={field.value || ""}
+            onChange={(value: string | undefined) => field.onChange(value)}
             className="input-phone"
+            disabled={disabled}
           />
         </FormControl>
       );
@@ -118,17 +112,18 @@ const RenderField = ({
             src="/assets/icons/calendar.svg"
             height={24}
             width={24}
-            alt="calender"
+            alt="calendar"
             className="ml-2"
           />
           <FormControl>
             <DatePicker
               selected={field.value}
-              onChange={(date) => field.onChange(date)}
+              onChange={(date: Date | null) => field.onChange(date)}
               dateFormat={dateFormat ?? "MM/dd/yyyy"}
               showTimeSelect={showTimeSelect ?? false}
               timeInputLabel="Time"
               wrapperClassName="date-picker"
+              disabled={disabled}
             />
           </FormControl>
         </div>
@@ -137,7 +132,11 @@ const RenderField = ({
     case FormFieldType.SELECT:
       return (
         <FormControl>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select
+            onValueChange={field.onChange}
+            defaultValue={field.value}
+            disabled={disabled}
+          >
             <FormControl>
               <SelectTrigger className="shad-select-trigger">
                 <SelectValue placeholder={placeholder} />
@@ -158,22 +157,25 @@ const RenderField = ({
         <FormControl>
           <div className="flex items-center gap-4">
             <Checkbox
-              id={props.name}
+              id={props.name.toString()}
               checked={field.value}
               onCheckedChange={field.onChange}
+              disabled={disabled}
             />
-            <label htmlFor={props.name} className="checkbox-label">
+            <label htmlFor={props.name.toString()} className="checkbox-label">
               {props.label}
             </label>
           </div>
         </FormControl>
       );
     default:
-      break;
+      return null;
   }
 };
 
-export default function CustomFormFiled(props: CustomProps) {
+export default function CustomFormField<T extends FieldValues>(
+  props: CustomProps<T>
+) {
   const { control, fieldType, name, label } = props;
   return (
     <FormField

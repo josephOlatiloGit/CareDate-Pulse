@@ -19,7 +19,7 @@ import {
   PatientFormDefaultValues,
 } from "@/constants";
 import { Label } from "../ui/label";
-import { Select, SelectItem } from "../ui/select";
+import { SelectItem } from "../ui/select";
 import Image from "next/image";
 import FileUploader from "../FileUploader";
 

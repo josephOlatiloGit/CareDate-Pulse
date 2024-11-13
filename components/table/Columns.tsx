@@ -1,7 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
 import StatusBadge from "../StatusBadge";
 import { formatDateTime } from "@/lib/utils";
 import { Doctors } from "@/constants";
@@ -9,11 +8,13 @@ import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
 import { Appointment } from "@/types/appwrite.types";
 
-export const columns: ColumnDef<Appointment>[] = [
-  // Table columns and data
+// Default image to use when doctor image is not found
+const DEFAULT_DOCTOR_IMAGE = "/assets/icons/default-doctor.svg";
+
+export const columns: ColumnDef<Appointment, unknown>[] = [
   {
     header: "ID",
-    cell: ({ row }) => <p className="text-14-medium"> {row.index + 1}</p>,
+    cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>,
   },
   {
     accessorKey: "patient",
@@ -51,13 +52,15 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <div className="flex items-center gap-3">
           <Image
-            src={doctor?.image}
-            alt={doctor.name}
-            width={100}
-            height={100}
-            className="size-8"
+            src={doctor?.image || DEFAULT_DOCTOR_IMAGE}
+            alt={doctor?.name || "Doctor"}
+            width={32}
+            height={32}
+            className="rounded-full object-cover"
           />
-          <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+          <p className="whitespace-nowrap">
+            Dr. {doctor?.name || row.original.primaryPhysician}
+          </p>
         </div>
       );
     },
